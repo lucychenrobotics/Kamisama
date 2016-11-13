@@ -85,7 +85,6 @@ THREE.DeviceOrientationControls = function ( object ) {
  
 };
 
-var timer = 0;
 
 var gyroPresent = false;
 window.addEventListener("devicemotion", function(event){
@@ -98,7 +97,7 @@ var interim_transcript = '';
 //var resetSentence = 0;
 // start speech
 //make sure api is supported by browser
-if (!('webkitSpeechRecognition' in window)) {
+/*if (!('webkitSpeechRecognition' in window)) {
     //Speech API not supported here…
     //alert("This won't work here");
 } else { //Let’s do some cool stuff :)
@@ -151,7 +150,92 @@ recognition.onresult = function(event) { //the event holds the results
     }
     recognition.start();
 
-}; 
+};
+*/
+
+var timer = 0;
+var songLine = 0;
+var timerReset = 0;
+
+songStart = function(songLine)
+{
+	if (songLine >= 1 && songLine <5) {
+		final_transcript = "";
+		console.log(songLine);
+		if (timerReset == 0)
+		{
+			timer = (new Date()).getTime();
+		}
+		timerReset++;
+		//console.log('timer' + timer);
+		
+	}
+
+
+	else if (songLine == 5) {
+		final_transcript = "Lung, Beat, Ship, Clock-wise";
+		console.log(songLine);
+		if (timerReset == 0)
+		{
+			timer = (new Date()).getTime();
+		}
+		timerReset++;
+		//console.log("timer" + timer);
+	}
+
+	else if (songLine == 6) {
+		final_transcript = "Book, Dew, Haze, Lark, Sphere";
+		console.log(songLine);
+		if (timerReset == 0)
+		{
+			timer = (new Date()).getTime();
+		}
+		timerReset++;
+		//console.log("timer" + timer);
+	}
+
+else if (songLine == 7) {
+		final_transcript = "Shoot, Eyes, Spiders gold";
+		console.log(songLine);
+		if (timerReset == 0)
+		{
+			timer = (new Date()).getTime();
+		}
+		timerReset++;
+		//console.log("timer" + timer);
+	}
+
+else if (songLine == 8) {
+		final_transcript = "Flaps, Doll, Jet, I miss it, Aube";
+		console.log(songLine);
+		if (timerReset == 0)
+		{
+			timer = (new Date()).getTime();
+		}
+		timerReset++;
+		//console.log("timer" + timer);
+	}
+
+else if (songLine == 9) {
+		final_transcript = "Dragon, phi , Twig, Wave, Cave";
+		console.log(songLine);
+		if (timerReset == 0)
+		{
+			timer = (new Date()).getTime();
+		}
+		timerReset++;
+		//console.log("timer" + timer);
+	}
+
+	else
+	{
+		final_transcript = "something";
+		//console.log("timer" + timer);
+		console.log("doing else");
+	}
+};
+
+
 
 var camVector = new THREE.Vector3();
 
@@ -561,23 +645,32 @@ function init(font) {
 var tick = 0;
 
 var targetStr = "";
+//var rendertimes = 0;
 
 
-recognition.start();
 
 function render() {
 	
 	var timeout;
 
 	if (gyroPresent) {
-		timeout = 15000;
+		timeout = 5000;
 	} else {
-		timeout = 10000;
+		timeout = 5000;
 	}
 
-	if ((new Date()).getTime() - timer > timeout) { final_transcript = ""; }
+	if ((new Date()).getTime() - timer > timeout) { 
+		songLine++;
+		timerReset = 0;
+	}
+
+	songStart(songLine);
 
 	targetStr = final_transcript;
+
+	
+	//rendertimes++;
+	//console.log("rendertimes" + rendertimes);
 
 	var target = targetStr.split("");
 	var counter = 0;
