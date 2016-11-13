@@ -85,6 +85,9 @@ THREE.DeviceOrientationControls = function ( object ) {
  
 };
 
+var timer = 0;
+
+var globalAmplitude = 40;
 
 var gyroPresent = false;
 window.addEventListener("devicemotion", function(event){
@@ -97,7 +100,7 @@ var interim_transcript = '';
 //var resetSentence = 0;
 // start speech
 //make sure api is supported by browser
-/*if (!('webkitSpeechRecognition' in window)) {
+if (!('webkitSpeechRecognition' in window)) {
     //Speech API not supported here…
     //alert("This won't work here");
 } else { //Let’s do some cool stuff :)
@@ -148,94 +151,9 @@ recognition.onresult = function(event) { //the event holds the results
         console.log("Interim:" + interim_transcript);
       }
     }
-    recognition.start();
+    //recognition.start();
 
-};
-*/
-
-var timer = 0;
-var songLine = 0;
-var timerReset = 0;
-
-songStart = function(songLine)
-{
-	if (songLine >= 1 && songLine <5) {
-		final_transcript = "";
-		console.log(songLine);
-		if (timerReset == 0)
-		{
-			timer = (new Date()).getTime();
-		}
-		timerReset++;
-		//console.log('timer' + timer);
-		
-	}
-
-
-	else if (songLine == 5) {
-		final_transcript = "Lung, Beat, Ship, Clock-wise";
-		console.log(songLine);
-		if (timerReset == 0)
-		{
-			timer = (new Date()).getTime();
-		}
-		timerReset++;
-		//console.log("timer" + timer);
-	}
-
-	else if (songLine == 6) {
-		final_transcript = "Book, Dew, Haze, Lark, Sphere";
-		console.log(songLine);
-		if (timerReset == 0)
-		{
-			timer = (new Date()).getTime();
-		}
-		timerReset++;
-		//console.log("timer" + timer);
-	}
-
-else if (songLine == 7) {
-		final_transcript = "Shoot, Eyes, Spiders gold";
-		console.log(songLine);
-		if (timerReset == 0)
-		{
-			timer = (new Date()).getTime();
-		}
-		timerReset++;
-		//console.log("timer" + timer);
-	}
-
-else if (songLine == 8) {
-		final_transcript = "Flaps, Doll, Jet, I miss it, Aube";
-		console.log(songLine);
-		if (timerReset == 0)
-		{
-			timer = (new Date()).getTime();
-		}
-		timerReset++;
-		//console.log("timer" + timer);
-	}
-
-else if (songLine == 9) {
-		final_transcript = "Dragon, phi , Twig, Wave, Cave";
-		console.log(songLine);
-		if (timerReset == 0)
-		{
-			timer = (new Date()).getTime();
-		}
-		timerReset++;
-		//console.log("timer" + timer);
-	}
-
-	else
-	{
-		final_transcript = "something";
-		//console.log("timer" + timer);
-		console.log("doing else");
-	}
-};
-
-
+}; 
 
 var camVector = new THREE.Vector3();
 
@@ -406,7 +324,7 @@ thing.prototype.assignNewDestination = function() {
 
 	return new THREE.Vector3(
 		Math.random() * 1000 - 500,
-		Math.random() * 50 - 70,
+		Math.random() * 10 - 30,
 		Math.random() * 1000 - 500
 	);
 
@@ -441,8 +359,8 @@ var letter = function(type, character, font) {
 	this.geometry;
 	this.geometry = getSmallTextGeometry(this.text);
 
-	this.waving = false;
 	this.wave = 0;
+	this.waveCounter = 0;
 
 	this.material = new THREE.MeshBasicMaterial({
 		color: 0x000000,
@@ -539,7 +457,7 @@ letter.prototype.update = function() {
 			this.sceneTick++;
 
 			if (this.sceneTickToForm <= 0) {
-				this.mesh.rotation.y = Math.PI - this.sceneTick * this.randomFactor * 0.01;
+				//this.mesh.rotation.y = Math.PI - this.sceneTick * this.randomFactor * 0.01;
 
 				if (this.mesh.position.distanceTo(this.destination) < 2) {
 					this.sceneArrived = true;
@@ -645,32 +563,23 @@ function init(font) {
 var tick = 0;
 
 var targetStr = "";
-//var rendertimes = 0;
 
 
+recognition.start();
 
 function render() {
 	
 	var timeout;
 
 	if (gyroPresent) {
-		timeout = 5000;
+		timeout = 15000;
 	} else {
-		timeout = 5000;
+		timeout = 10000;
 	}
 
-	if ((new Date()).getTime() - timer > timeout) { 
-		songLine++;
-		timerReset = 0;
-	}
-
-	songStart(songLine);
+	if ((new Date()).getTime() - timer > timeout) { final_transcript = ""; }
 
 	targetStr = final_transcript;
-
-	
-	//rendertimes++;
-	//console.log("rendertimes" + rendertimes);
 
 	var target = targetStr.split("");
 	var counter = 0;
@@ -679,12 +588,6 @@ function render() {
 	requestAnimationFrame(render);
 
 	renderer.clear();
-	/*
-	renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
-	renderer.render(consoleScene, consoleCamera);
-
-	renderer.clearDepth();
-	*/
 	renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
 	renderer.render(scene, camera);
 
@@ -783,12 +686,20 @@ function render() {
 				//console.log(target.toString());
 				var extra = - (3 * counter)
 
-				var targetVector = new THREE.Vector3(0, 25- 10 * vc, 75);
-				targetVector.applyAxisAngle(new THREE.Vector3(0, 1, 0), extra * Math.PI / 180 + Math.PI / 8);
+				var targetVector = new THREE.Vector3(camVector.x * 75, camVector.y * 75 - 10 * vc, camVector.z * 75);
+				targetVector.applyAxisAngle(new THREE.Vector3(0, 1, 0), extra * Math.PI / 180 + Math.PI / 6);
 				targetVector.applyAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 36);
 
+				//var a = targetVector.angleTo(new THREE.Vector3(targetVector.x, targetVector.y, 1));
+
 				l.setDestination(targetVector.x, targetVector.y, targetVector.z);
-				//l.mesh.rotation.y = Math.PI;
+				if (l.mesh) {
+					//l.up = new THREE.Vector3( 1, 0, 0 );
+					l.mesh.rotation.y = camera.rotation.y;
+					//console.log(l.mesh.rotation);
+					//var vector = l.mesh.parent.worldToLocal(camera.getWorldPosition());
+					//l.mesh.lookAt(camera.position);
+				}
 				//console.log(camVector);
 				l.randomFactor = 0;
 				l.sceneArrived = false;
@@ -817,20 +728,22 @@ function render() {
 		var offset = 100; //Slightly wider bound
 		//Continously creates waves until pressed again...letters however disperse after cycle counter
 		if (((vect.x>lowerBoundX-offset) && (vect.x<higherBoundX+offset) &&
-		    (vect.z>lowerBoundZ-offset) && (vect.z<higherBoundZ+offset) &&
-		         smallNoiseBool) || l.waving)
+		    (vect.z>lowerBoundZ-offset) && (vect.z<higherBoundZ+offset) && smallNoiseBool))
 		{ //Wave generator
-			l.setDestination(vect.x+10,vect.y+20*Math.cos(l.wave),currentDirect.z);
+			l.setDestination(vect.x+10,vect.y+globalAmplitude*Math.cos(l.wave),currentDirect.z);
 			l.wave+=Math.PI/50;
 			l.waveCounter+=1;
 			//console.log("Testing sin wave");
-			if (l.waveCounter>1000){
+			if (l.wave>4*Math.PI){
 				l.waveCounter = 0;
-				l.waving = false;
+				l.wave = 0;
+				smallNoiseBool = false;
 			}
 		} else if (l.sceneArrived) {
 			var t = things[l.thingID];
 			if (t.isBlob) {
+				l.wave = 0;
+				l.waveCounter = 0;
 				l.randomFactor = Math.random() - 0.5;
 				var newDest = t.assignNewDestination();
 				l.setDestination(newDest.x, newDest.y, newDest.z);
@@ -865,7 +778,7 @@ $("body").on("mousemove", function(event) {
 
 $("body").bind("keypress", function(event) {		
  	if (event.which == 97) {		
- 		
+ 		targetStr = "PPAP";
  	} else if (event.which == 98) {	
  		console.log(final_transcript);	
  		targetStr = final_transcript;
@@ -874,7 +787,8 @@ $("body").bind("keypress", function(event) {
  	} else if (event.which == 32){ //Press Space to see spike
  		spikeBool = !spikeBool;
  	}  else if (event.which == 122){
- 		console.log("Z key Pressed");
- 		smallNoiseBool = !smallNoiseBool;
+ 		console.log("Z key Pressed!!");
+ 		// smallNoiseBool = !smallNoiseBool;
+ 		smallNoiseBool = true;
  	}
  })
